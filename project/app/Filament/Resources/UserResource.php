@@ -35,7 +35,7 @@ class UserResource extends Resource
     {
         return $table
             ->columns([
-                TextColumn::make('id')->label('ID'),
+                TextColumn::make('id_usuario')->label('ID'),
                 TextColumn::make('name'),
                 TextColumn::make('email'),
 
