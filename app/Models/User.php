@@ -28,8 +28,13 @@ class User extends Authenticatable
 
     protected $casts = [
         'email_verified_at' => 'datetime',
-        'password' => 'hashed',
     ];
 
     public $timestamps = false; // Desativa created_at e updated_at
+
+    public function transacoes()
+    {
+        return $this->hasMany(\App\Models\Transacao::class, 'id_usuario');
+    }
+
 }

@@ -12,12 +12,18 @@ use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
+use Filament\Forms\Components\DateTimePicker;
+use App\Filament\Resources\UserResource\RelationManagers\TransacoesRelationManager;
+
 
 class UserResource extends Resource
 {
     protected static ?string $model = User::class;
+
+    protected static ?string $navigationLabel = 'Usuários';
+    protected static ?string $modelLabel = 'Usuário';
+    protected static ?string $pluralModelLabel = 'Usuários';
+
 
     protected static ?string $navigationIcon = 'heroicon-o-users';
 
@@ -26,8 +32,25 @@ class UserResource extends Resource
         return $form
             ->schema([
                 TextInput::make('name')->required(),
+
                 TextInput::make('email')->email()->required(),
-                TextInput::make('password')->password(),
+
+                TextInput::make('password')
+                    ->password()
+                    ->dehydrateStateUsing(fn ($state, $record) => filled($state) ? bcrypt($state) : $record->password)
+                    ->required(fn (string $context) => $context === 'create')
+                    ->label('Senha')
+                    ->maxLength(255),
+
+                TextInput::make('saldo')
+                    ->numeric()
+                    ->label('Saldo')
+                    ->default(0),
+
+                DateTimePicker::make('data_criacao')
+                    ->label('Data de Criação')
+                    ->default(now())
+                    ->disabled(),
             ]);
     }
 
@@ -38,6 +61,9 @@ class UserResource extends Resource
                 TextColumn::make('id_usuario')->label('ID')->searchable(),
                 TextColumn::make('name')->label('Nome')->searchable(),
                 TextColumn::make('email')->label('E-mail')->searchable(),
+                TextColumn::make('saldo')->label('Saldo')->money('BRL')->sortable(),
+                TextColumn::make('data_criacao')->label('Criado em')->dateTime('d/m/Y H:i')->sortable(),
+
 
             ])
             ->filters([
@@ -56,7 +82,7 @@ class UserResource extends Resource
     public static function getRelations(): array
     {
         return [
-            //
+            TransacoesRelationManager::class,
         ];
     }
 
