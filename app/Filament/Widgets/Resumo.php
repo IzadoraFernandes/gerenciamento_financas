@@ -26,17 +26,33 @@ class Resumo extends BaseWidget
 
         $saldo = $entradas - $despesas;
 
+        // Condições para destaque
+        $entradasColor = $saldo > $despesas ? 'success' : 'default';
+        $despesasColor = $saldo <= $despesas ? 'danger' : 'default';
+
+
+        // Exibir gráfico com destaque
+        $entradasStat = Stat::make('Valor de entradas', 'R$ ' . number_format($entradas, 2, ',', '.'))
+            ->color($entradasColor);
+
+        if ($entradasColor === 'success') {
+            $entradasStat->chart([10, 20, 15, 30, 25]);
+        }
+
+        $despesasStat = Stat::make('Valor das despesas', 'R$ ' . number_format($despesas, 2, ',', '.'))
+            ->color($despesasColor);
+
+        if ($despesasColor === 'danger') {
+            $despesasStat->chart([10, 20, 15, 30, 25]);
+        }
+
         return [
-            Stat::make('Valor de entradas', 'R$ ' . number_format($entradas, 2, ',', '.'))
-                ->chart([10, 20, 15, 30, 25]) // Simulação
-                ->color('success'),
-
-            Stat::make('Valor das despesas', 'R$ ' . number_format($despesas, 2, ',', '.'))
-                ->color('danger'),
-
+            $entradasStat,
+            $despesasStat,
             Stat::make('Saldo final do mês', 'R$ ' . number_format($saldo, 2, ',', '.'))
                 ->description($saldo >= 0 ? 'Saldo positivo' : 'Saldo negativo')
                 ->color($saldo >= 0 ? 'success' : 'danger'),
         ];
+
     }
 }
