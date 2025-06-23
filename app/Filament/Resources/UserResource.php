@@ -14,6 +14,8 @@ use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use Filament\Forms\Components\DateTimePicker;
 use App\Filament\Resources\UserResource\RelationManagers\TransacoesRelationManager;
+use Filament\Forms\Components\Select;
+
 
 
 class UserResource extends Resource
@@ -33,7 +35,10 @@ class UserResource extends Resource
             ->schema([
                 TextInput::make('name')->required(),
 
-                TextInput::make('email')->email()->required(),
+                TextInput::make('email')
+                    ->email()
+                    ->required()
+                    ->unique(ignoreRecord: true),
 
                 TextInput::make('password')
                     ->password()
@@ -41,6 +46,13 @@ class UserResource extends Resource
                     ->required(fn (string $context) => $context === 'create')
                     ->label('Senha')
                     ->maxLength(255),
+
+                Select::make('roles')
+                    ->label('Funções')
+                    ->multiple()
+                    ->relationship('roles', 'name')
+                    ->preload()
+                    ->searchable(),
 
                 TextInput::make('saldo')
                     ->numeric()
