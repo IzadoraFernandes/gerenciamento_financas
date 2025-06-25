@@ -10,6 +10,7 @@
         "filament/filament": "^3.3",
         "filament/widgets": "^3.3",
         "guzzlehttp/guzzle": "^7.2",
+        "joaopaulolndev/filament-edit-profile": "^1.0",
         "laravel/framework": "^10.10",
         "laravel/sanctum": "^3.3",
         "laravel/tinker": "^2.8",
