@@ -77,6 +77,7 @@ class AdminPanelProvider extends PanelProvider
                     ->setIcon('heroicon-o-user')
                     ->shouldRegisterNavigation(false),
 
-            ));
+            ))
+            ->databaseNotifications();
     }
 }
