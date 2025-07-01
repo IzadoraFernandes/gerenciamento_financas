@@ -14,7 +14,7 @@ class Transacao extends Model
         'valor',
         'data',
         'tipo',
-        'categoria',
+        'id_categoria',
         'id_usuario',
     ];
 
@@ -23,4 +23,10 @@ class Transacao extends Model
     {
         return $this->belongsTo(User::class, 'id_usuario', 'id_usuario');
     }
+
+    public function categoria()
+    {
+        return $this->belongsTo(Categoria::class, 'id_categoria');
+    }
+
 }

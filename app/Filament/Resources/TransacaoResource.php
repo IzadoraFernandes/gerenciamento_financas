@@ -34,7 +34,16 @@ class TransacaoResource extends Resource
                         'Despesa' => 'Despesa',
                     ])->required(),
 
-                TextInput::make('categoria')->required(),
+                Select::make('id_categoria')
+                    ->label('Categoria')
+                    ->relationship('categoria', 'nome')
+                    ->searchable()
+                    ->createOptionForm([
+                        TextInput::make('nome')->required()->label('Nova Categoria'),
+                    ])
+                    ->createOptionUsing(fn ($data) => \App\Models\Categoria::create($data))
+                    ->required(),
+
 
                 Select::make('id_usuario')
                     ->relationship('users', 'name')->required(),
@@ -65,7 +74,7 @@ class TransacaoResource extends Resource
                     ->label('Tipo')
                     ->searchable(),
 
-                TextColumn::make('categoria')
+                TextColumn::make('categoria.nome')
                     ->label('Categoria')
                     ->searchable(),
 
