@@ -14,12 +14,15 @@ class CategoriaGrafico extends ChartWidget
         $userId = auth()->id();
 
         $categoria = DB::table('transacaos')
-            ->selectRaw('categoria, SUM(valor) as total')
-            ->where('id_usuario', $userId)
-            ->whereRaw("LOWER(tipo) = 'despesa'")
-            ->whereMonth('data', now()->month)
-            ->groupBy('categoria')
+            ->join('categorias', 'transacaos.id_categoria', '=', 'categorias.id')
+            ->selectRaw('categorias.nome as categoria, SUM(transacaos.valor) as total')
+            ->where('transacaos.id_usuario', $userId)
+            ->whereRaw("LOWER(transacaos.tipo) = 'despesa'")
+            ->whereMonth('transacaos.data', now()->month)
+            ->groupBy('categorias.nome')
             ->get();
+
+
 
         $labels = $categoria->pluck('categoria')->toArray();
         $data = $categoria->pluck('total')->toArray();
