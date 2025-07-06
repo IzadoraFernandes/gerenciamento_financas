@@ -1,36 +1,54 @@
 <?php
 
-
 namespace App\Filament\Widgets;
 
-
+use Filament\Forms;
 use Filament\Widgets\ChartWidget;
 use Illuminate\Support\Facades\DB;
 
-
 class AnualGrafico extends ChartWidget
 {
+    protected static ?string $heading = 'Receitas e Despesas - Por Ano';
 
-    protected static ?string $heading = 'Receitas e Despesas - Ano Atual';
+    // Define um formulário de filtro com um select de anos
+    protected function getFormSchema(): array
+    {
+        return [
+            Forms\Components\Select::make('ano')
+                ->label('Ano')
+                ->options($this->getAnosDisponiveis())
+                ->default(now()->year)
+                ->reactive()
+                ->afterStateUpdated(fn () => $this->updateChartData()), // atualiza o gráfico ao mudar o ano
+        ];
+    }
 
+    protected function getAnosDisponiveis(): array
+    {
+        $userId = auth()->id();
+
+        return DB::table('transacaos')
+            ->where('id_usuario', $userId)
+            ->selectRaw('DISTINCT EXTRACT(YEAR FROM data) as ano')
+            ->orderByDesc('ano')
+            ->pluck('ano', 'ano')
+            ->toArray();
+    }
 
     protected function getData(): array
     {
         $userId = auth()->id();
-        $anoAtual = now()->year;
-
+        $anoSelecionado = $this->filterFormData['ano'] ?? now()->year;
 
         $receitasPorMes = array_fill(1, 12, 0);
         $despesasPorMes = array_fill(1, 12, 0);
 
-
         $dados = DB::table('transacaos')
             ->select(DB::raw('EXTRACT(MONTH FROM data) as mes'), 'tipo', DB::raw('SUM(valor) as total'))
             ->where('id_usuario', $userId)
-            ->whereYear('data', $anoAtual)
+            ->whereYear('data', $anoSelecionado)
             ->groupBy('mes', 'tipo')
             ->get();
-
 
         foreach ($dados as $dado) {
             if ($dado->tipo === 'Receita') {
@@ -39,7 +57,6 @@ class AnualGrafico extends ChartWidget
                 $despesasPorMes[$dado->mes] = $dado->total;
             }
         }
-
 
         return [
             'datasets' => [
@@ -62,7 +79,6 @@ class AnualGrafico extends ChartWidget
             ],
         ];
     }
-
 
     protected function getType(): string
     {
