@@ -14,6 +14,7 @@ use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
+use Filament\Facades\Filament;
 
 class InvestimentoResource extends Resource
 {
@@ -41,7 +42,8 @@ class InvestimentoResource extends Resource
                 TextInput::make('rendimento_esperado')->numeric()->required(),
 
                 Select::make('id_usuario')
-                    ->relationship('user', 'name')
+                    ->default(fn () => Filament::auth()->user()->id_usuario)
+                    ->hidden()
                     ->required(),
             ]);
     }

@@ -11,6 +11,7 @@ use Filament\Forms\Components\DatePicker, Filament\Forms\Components\Select;
 use Filament\Tables;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
+use Filament\Forms\Components\Hidden;
 
 
 class TransacaoResource extends Resource
@@ -18,7 +19,7 @@ class TransacaoResource extends Resource
     protected static ?string $model = Transacao::class;
     protected static ?string $modelLabel = 'Transações';
 
-    protected static ?string $navigationIcon = 'heroicon-o-currency-dollar';
+    protected static ?string $navigationIcon = 'heroicon-o-banknotes';
 
     public static function form(Form $form): Form
     {
@@ -41,12 +42,12 @@ class TransacaoResource extends Resource
                     ->createOptionForm([
                         TextInput::make('nome')->required()->label('Nova Categoria'),
                     ])
-                    ->createOptionUsing(fn ($data) => \App\Models\Categoria::create($data))
+                    ->createOptionUsing(fn ($data) => \App\Models\Categoria::create($data)->id_categoria)
                     ->required(),
 
 
-                Select::make('id_usuario')
-                    ->relationship('users', 'name')->required(),
+                Hidden::make('id_usuario')
+                    ->default(fn () => Filament::auth()->user()->id_usuario),
 
             ]);
     }
