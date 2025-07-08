@@ -18,7 +18,7 @@ class CategoriaGrafico extends ChartWidget
                 ->label('Mês')
                 ->options($this->getMeses())
                 ->default(now()->format('m'))
-                ->reactive() // Atualiza o gráfico automaticamente ao trocar
+                ->reactive()
                 ->afterStateUpdated(fn () => $this->updateChartData()),
         ];
     }
