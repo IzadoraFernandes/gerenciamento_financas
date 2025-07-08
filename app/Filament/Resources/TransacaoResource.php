@@ -12,6 +12,7 @@ use Filament\Tables;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use Filament\Forms\Components\Hidden;
+use Filament\Facades\Filament;
 
 
 class TransacaoResource extends Resource
