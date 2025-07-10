@@ -25,7 +25,7 @@ class InvestimentoResource extends Resource
     public static function form(Form $form): Form
     {
         return $form
-            ->schema([
+            ->schema(components: [
                 Select::make('id_tipo_investimento')
                     ->label('Tipo de Investimento')
                     ->relationship('tipoInvestimento', 'tipo')
@@ -39,7 +39,9 @@ class InvestimentoResource extends Resource
                 TextInput::make('instituicao')->required(),
                 DatePicker::make('data')->required(),
                 TextInput::make('valor')->numeric()->required(),
-                TextInput::make('rendimento_esperado')->numeric()->required(),
+                TextInput::make('rendimento_esperado')
+                    ->label('Rendimento Esperado (%)')
+                    ->numeric(),
 
                 Select::make('id_usuario')
                     ->default(fn () => Filament::auth()->user()->id_usuario)

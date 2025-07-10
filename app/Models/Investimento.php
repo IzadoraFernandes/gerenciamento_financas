@@ -20,6 +20,13 @@ class Investimento extends Model
         'id_usuario',
     ];
 
+    protected static function booted()
+    {
+        static::creating(function ($investimento) {
+            $investimento->id_usuario = auth()->user()?->id_usuario;
+        });
+    }
+
     public function user()
     {
         return $this->belongsTo(User::class, 'id_usuario', 'id_usuario');
