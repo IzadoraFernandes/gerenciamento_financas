@@ -13,6 +13,7 @@ use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use Filament\Forms\Components\Hidden;
 use Filament\Facades\Filament;
+use Illuminate\Database\Eloquent\Builder;
 
 
 class TransacaoResource extends Resource
@@ -108,5 +109,10 @@ class TransacaoResource extends Resource
             'create' => Pages\CreateTransacao::route('/create'),
             'edit' => Pages\EditTransacao::route('/{record}/edit'),
         ];
+    }
+
+    public static function getEloquentQuery(): Builder
+    {
+        return parent::getEloquentQuery()->where('id_usuario', auth()->id());
     }
 }
