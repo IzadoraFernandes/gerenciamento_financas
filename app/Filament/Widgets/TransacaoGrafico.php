@@ -6,9 +6,11 @@ use Filament\Forms\Components\Select;
 use Filament\Widgets\ChartWidget;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Request;
 
 class TransacaoGrafico extends ChartWidget
 {
+
     protected static ?string $heading = 'Resumo de Entradas e Saídas';
     public ?string $filter = null;
 
@@ -42,18 +44,46 @@ class TransacaoGrafico extends ChartWidget
     protected function getData(): array
     {
         $userId = auth()->id();
+
+        // Get filters from the request
+        $dataInicio = Request::input('tableFilters.data_inicio');
+        $dataFinal = Request::input('tableFilters.data_final');
+        $name = Request::input('tableFilters.name');
+
         $mesSelecionado = $this->filter ?? now()->format('m');
 
+        // Calculate entradas (income)
         $entradas = (float) DB::table('transacaos')
             ->where('id_usuario', $userId)
+            ->when($dataInicio, function($query) use ($dataInicio) {
+                return $query->where('data', '>=', $dataInicio);
+            }, function($query) use ($mesSelecionado) {
+                return $query->whereMonth('data', $mesSelecionado);
+            })
+            ->when($dataFinal, function($query) use ($dataFinal) {
+                return $query->where('data', '<=', $dataFinal);
+            })
+            ->when($name, function($query) use ($name) {
+                return $query->where('descricao', 'like', "%{$name}%");
+            })
             ->whereRaw("LOWER(tipo) = 'receita'")
-            ->whereMonth('data', $mesSelecionado)
             ->sum('valor');
 
+        // Calculate saidas (expenses)
         $saidas = (float) DB::table('transacaos')
             ->where('id_usuario', $userId)
+            ->when($dataInicio, function($query) use ($dataInicio) {
+                return $query->where('data', '>=', $dataInicio);
+            }, function($query) use ($mesSelecionado) {
+                return $query->whereMonth('data', $mesSelecionado);
+            })
+            ->when($dataFinal, function($query) use ($dataFinal) {
+                return $query->where('data', '<=', $dataFinal);
+            })
+            ->when($name, function($query) use ($name) {
+                return $query->where('descricao', 'like', "%{$name}%");
+            })
             ->whereRaw("LOWER(tipo) = 'despesa'")
-            ->whereMonth('data', $mesSelecionado)
             ->sum('valor');
 
         return [

@@ -62,6 +62,7 @@ class AdminPanelProvider extends PanelProvider
                     ->url(fn (): string => EditProfilePage::getUrl())
                     ->icon('heroicon-m-user-circle'),
             ])
+            ->sidebarCollapsibleOnDesktop()
             ->plugins(plugins: array(
                 FilamentEditProfilePlugin::make()
                     ->setTitle('Perfil')

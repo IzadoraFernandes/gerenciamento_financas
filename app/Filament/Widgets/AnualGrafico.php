@@ -5,6 +5,8 @@ namespace App\Filament\Widgets;
 use Filament\Widgets\ChartWidget;
 use Filament\Widgets\Concerns\InteractsWithPageFilters;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Carbon;
 
 class AnualGrafico extends ChartWidget
@@ -23,22 +25,41 @@ class AnualGrafico extends ChartWidget
 
     protected function getData(): array
     {
+        $userId = Auth::id();
+        $anoSelecionado = $this->filter ?? now()->format('Y');
 
-
-        $userId = auth()->id();
-        $anoSelecionado = $this->filter ?? now()->year;
-
-
+        // Get filters from the request
+        $dataInicio = Request::input('tableFilters.data_inicio');
+        $dataFinal = Request::input('tableFilters.data_final');
+        $name = Request::input('tableFilters.name');
 
         $receitasPorMes = array_fill(1, 12, 0);
         $despesasPorMes = array_fill(1, 12, 0);
 
-        $dados = DB::table('transacaos')
+        $query = DB::table('transacaos')
             ->select(DB::raw('EXTRACT(MONTH FROM data) as mes'), 'tipo', DB::raw('SUM(valor) as total'))
-            ->where('id_usuario', $userId)
-            ->whereYear('data', $anoSelecionado)
-            ->groupBy('mes', 'tipo')
-            ->get();
+            ->where('id_usuario', $userId);
+
+        // Apply year filter if no specific date range is provided
+        if (!$dataInicio && !$dataFinal) {
+            $query->whereYear('data', $anoSelecionado);
+        }
+
+        // Apply date filters if available
+        if ($dataInicio) {
+            $query->where('data', '>=', $dataInicio);
+        }
+
+        if ($dataFinal) {
+            $query->where('data', '<=', $dataFinal);
+        }
+
+        // Apply name filter if available
+        if ($name) {
+            $query->where('descricao', 'like', "%{$name}%");
+        }
+
+        $dados = $query->groupBy('mes', 'tipo')->get();
 
         foreach ($dados as $dado) {
             if (strtolower($dado->tipo) === 'receita') {

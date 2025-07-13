@@ -6,6 +6,7 @@ use Filament\Widgets\ChartWidget;
 use Illuminate\Support\Facades\DB;
 use Filament\Forms\Components\Select;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Request;
 
 class CategoriaGrafico extends ChartWidget
 {
@@ -37,14 +38,34 @@ class CategoriaGrafico extends ChartWidget
         $userId = auth()->id();
         $mesSelecionado = $this->filters['mes'] ?? now()->format('m');
 
-        $categoria = DB::table('transacaos')
+        // Get filters from the request
+        $dataInicio = Request::input('tableFilters.data_inicio');
+        $dataFinal = Request::input('tableFilters.data_final');
+        $name = Request::input('tableFilters.name');
+
+        $query = DB::table('transacaos')
             ->join('categorias', 'transacaos.id_categoria', '=', 'categorias.id')
             ->selectRaw('categorias.nome as categoria, SUM(transacaos.valor) as total')
             ->where('transacaos.id_usuario', $userId)
-            ->whereRaw("LOWER(transacaos.tipo) = 'despesa'")
-            ->whereMonth('transacaos.data', $mesSelecionado)
-            ->groupBy('categorias.nome')
-            ->get();
+            ->whereRaw("LOWER(transacaos.tipo) = 'despesa'");
+
+        // Apply date filters if available
+        if ($dataInicio) {
+            $query->where('transacaos.data', '>=', $dataInicio);
+        } else {
+            $query->whereMonth('transacaos.data', $mesSelecionado);
+        }
+
+        if ($dataFinal) {
+            $query->where('transacaos.data', '<=', $dataFinal);
+        }
+
+        // Apply name filter if available
+        if ($name) {
+            $query->where('transacaos.descricao', 'like', "%{$name}%");
+        }
+
+        $categoria = $query->groupBy('categorias.nome')->get();
 
 
 

@@ -32,7 +32,13 @@ class Dashboard extends \Filament\Pages\Dashboard
     public function getHeaderWidgets(): array
     {
         return [
-            Resumo::class,
+            Resumo::class
+        ];
+    }
+
+    public function getWidgets(): array
+    {
+        return [
             TransacaoGrafico::class,
             CategoriaGrafico::class,
             AnualGrafico::class,
