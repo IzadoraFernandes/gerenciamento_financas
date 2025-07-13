@@ -37,9 +37,15 @@ class InvestimentoResource extends Resource
                     ->required(),
 
                 TextInput::make('instituicao')->required(),
-                DatePicker::make('data')->required(),
-                TextInput::make('valor')->numeric()->required(),
+                DatePicker::make('data')
+                    ->default(now())
+                    ->required(),
+                TextInput::make('valor')
+                    ->prefix('R$ ')
+                    ->numeric()
+                    ->required(),
                 TextInput::make('rendimento_esperado')
+                    ->required()
                     ->label('Rendimento Esperado (%)')
                     ->numeric(),
 

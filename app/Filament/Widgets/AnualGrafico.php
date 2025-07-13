@@ -3,11 +3,15 @@
 namespace App\Filament\Widgets;
 
 use Filament\Widgets\ChartWidget;
+use Filament\Widgets\Concerns\InteractsWithPageFilters;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Carbon;
 
 class AnualGrafico extends ChartWidget
 {
+
+    use InteractsWithPageFilters;
+
     protected static ?string $heading = 'Receitas e Despesas - Por Ano';
 
     public ?string $filter = null;
@@ -19,8 +23,12 @@ class AnualGrafico extends ChartWidget
 
     protected function getData(): array
     {
+
+
         $userId = auth()->id();
         $anoSelecionado = $this->filter ?? now()->year;
+
+
 
         $receitasPorMes = array_fill(1, 12, 0);
         $despesasPorMes = array_fill(1, 12, 0);
